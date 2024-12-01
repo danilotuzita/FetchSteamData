@@ -7,7 +7,6 @@ from app.api.steam.user_stats_for_game.api import GetUserStatsForGameApi
 
 
 class SteamServiceApi:
-
     @staticmethod
     def get_owned_games() -> GetOwnedGamesResponse:
         return GetOwnedGamesApi.get_owned_games()
@@ -19,13 +18,3 @@ class SteamServiceApi:
     @staticmethod
     def get_schema_for_game(appid: int) -> GetSchemaForGameResponse:
         return GetSchemaForGameApi.get_schema_for_game(appid)
-
-    @staticmethod
-    def get_fake_data(no: int) -> GetOwnedGamesResponse:
-        match no:
-            case 0:
-                return GetOwnedGamesApi.get_fake_data()
-            case 1:
-                return GetOwnedGamesApi.get_fake_data1()
-            case 2:
-                return GetOwnedGamesApi.get_fake_data2()

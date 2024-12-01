@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, select, func
 from sqlalchemy.orm import Session
 
-from app.domain.achievements import Achievements
+from app.domain.achievements import Achievement
 from app.domain.base import Base
 from app.domain.play_history import PlayHistory
 from app.domain.play_session import PlaySession
@@ -9,7 +9,7 @@ from app.domain.session_sequence import SessionSequence
 
 
 class DatabaseRepository:
-    engine = create_engine("sqlite:///steam.db", echo=True)
+    engine = create_engine("sqlite:///steam.db")
     current_session_id: int = None
 
     @staticmethod
@@ -33,54 +33,35 @@ class DatabaseRepository:
     @staticmethod
     def put_game_history(games: list[PlayHistory]):
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             for game in games:
                 game.session_id = DatabaseRepository.current_session_id
                 session.add(game)
             session.commit()
 
     @staticmethod
-    def get_last_game_history(appid: int) -> PlayHistory:
+    def put_achievements(achievements: list[Achievement]):
         DatabaseRepository.get_session()
         with Session(DatabaseRepository.engine) as session:
-            return session.scalars(
-                select(PlayHistory)
-                .where(PlayHistory.appid == appid)
-                .order_by(PlayHistory.session_id.desc())
-            ).first()
-
-    @staticmethod
-    def get_game_history(appid: int, session_id: int) -> PlayHistory:
-        DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
-            return session.scalars(
-                select(PlayHistory)
-                .where(PlayHistory.appid == appid)
-                .where(PlayHistory.session_id == session_id)
-            ).first()
-
-    @staticmethod
-    def put_achievements(achievements: list[Achievements]):
-        DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
-            session.add_all(achievements)
+            for achievement in achievements:
+                session.merge(achievement)
             session.commit()
 
     @staticmethod
     def get_app_achivements_count(appid: int) -> int:
         DatabaseRepository.get_session()
         with Session(DatabaseRepository.engine) as session:
-            return session.query(func.count(Achievements.appid)).where(Achievements.appid == appid).scalar()
+            return session.query(func.count(Achievement.appid)).where(Achievement.appid == appid).scalar()
 
     @staticmethod
     def set_achievement_completed(appid: int, name: str) -> int:
         DatabaseRepository.get_session()
         with Session(DatabaseRepository.engine) as session:
-            achievement: Achievements = session.scalar(
-                select(Achievements)
-                .where(Achievements.appid == appid)
-                .where(Achievements.name == name)
-                .where(Achievements.session_id_unlocked.is_(None))
+            achievement: Achievement = session.scalar(
+                select(Achievement)
+                .where(Achievement.appid == appid)
+                .where(Achievement.name == name)
+                .where(Achievement.session_id_unlocked.is_(None))
             )
             if achievement is None:
                 return

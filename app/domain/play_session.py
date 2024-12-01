@@ -14,10 +14,11 @@ class PlaySession(Base):
     session_id: Mapped[int] = mapped_column(primary_key=True)
     appid: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(128))
+    total_minutes_played: Mapped[int]
     minutes_played: Mapped[int]
-    session_time: Mapped[datetime.datetime] = mapped_column(DateTime(True))
+    session_time: Mapped[int]
     play_count: Mapped[int] = mapped_column(default=1)
     session_fetched_time: Mapped[DateTime] = mapped_column(DateTime(True), server_default=func.now())
 
     def __repr__(self) -> str:
-        raise NotImplementedError()
+        return f"PlaySession(session_id={self.session_id!r},appid={self.appid!r},name={self.name!r},total_minutes_played={self.total_minutes_played!r},minutes_played={self.minutes_played!r},session_time={self.session_time!r},play_count={self.play_count!r},session_fetched_time={TimeUtil.unixtime_to_localtime_str(self.session_fetched_time)})"
