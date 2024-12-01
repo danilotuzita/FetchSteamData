@@ -8,7 +8,7 @@ logging.basicConfig(format="%(asctime)s - %(levelname)s : %(message)s", level=lo
 
 
 class GetUserStatsForGameApi():
-    get_user_stats_for_game_url = "http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/"
+    get_user_stats_for_game_url = "https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/"
 
     @staticmethod
     def get_user_stats_for_game(appid: int) -> GetUserStatsForGameResponse:

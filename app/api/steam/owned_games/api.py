@@ -6,7 +6,7 @@ from app.api.steam.owned_games.response import GetOwnedGamesResponse
 
 
 class GetOwnedGamesApi():
-    get_owned_games_url = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
+    get_owned_games_url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
     get_owned_games_param = urllib.parse.urlencode(
         {
             'key': STEAM_API_KEY,
