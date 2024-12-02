@@ -81,7 +81,7 @@ class DatabaseRepository:
     @staticmethod
     def put_play_session(play_session: PlaySession):
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             play_session.session_id = DatabaseRepository.current_session_id
             session.add(play_session)
             session.commit()
