@@ -1,7 +1,8 @@
 import logging
+from app.api.steam.community.achievements.api import GetAchivementUnlockedDateApi
 from app.api.steam.owned_games.response import GetOwnedGamesResponseGame
 from app.api.steam.steam_service_api import SteamServiceApi
-from app.domain.achievements import Achievement
+from app.domain.achievement import Achievement
 from app.domain.play_history import PlayHistory
 from app.domain.play_session import PlaySession
 from app.repository.database_repository import DatabaseRepository
@@ -55,10 +56,13 @@ class SteamAchivementsService:
             return
 
         SteamAchivementsService.make_achievements(play_session)
+        unlocked_at = GetAchivementUnlockedDateApi.get_achievements_unlocked_date(play_session.appid)
         for achievement in user_stats.playerstats.achievements:
             if achievement.achieved != 1:
                 continue
-            DatabaseRepository.set_achievement_completed(play_session.appid, achievement.name)
+            updated_achievement = DatabaseRepository.set_achievement_unlocked(play_session.appid, achievement.name, unlocked_at[achievement.name.upper()])
+            if updated_achievement:
+                logging.info(f"New Achievement Unlocked for Game! name={updated_achievement.game_name}, appid={updated_achievement.appid}, achievement={updated_achievement.description}, unlocked_at={TimeUtil.unixtime_to_localtime_str(updated_achievement.time_unlocked)}")
 
     @staticmethod
     def make_achievements(play_session: PlaySession):
@@ -70,7 +74,7 @@ class SteamAchivementsService:
         if db_achievement_count >= len(game_schema.game.availableGameStats.achievements):
             return
 
-        logging.debug(f"Found new Achievements for Game name={play_session.name}, appid={play_session.appid}. DbCount={db_achievement_count}, SteamCount={len(game_schema.game.availableGameStats.achievements)}.")
+        logging.info(f"Found new Achievements for Game name={play_session.name}, appid={play_session.appid}. DbCount={db_achievement_count}, SteamCount={len(game_schema.game.availableGameStats.achievements)}.")
         achievements: list[Achievement] = []
         for achievement in game_schema.game.availableGameStats.achievements:
             achievements.append(Achievement(appid=play_session.appid, name=achievement.name, game_name=play_session.name, display_name=achievement.displayName, description=achievement.description, hidden=achievement.hidden))

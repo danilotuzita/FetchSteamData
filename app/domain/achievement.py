@@ -17,6 +17,7 @@ class Achievement(Base):
     display_name: Mapped[str] = mapped_column(String(128))
     description: Mapped[str] = mapped_column(String(512))
     hidden: Mapped[int]
+    time_unlocked: Mapped[Optional[int]]
     session_id_unlocked: Mapped[Optional[int]]
     session_fetched_time: Mapped[DateTime] = mapped_column(DateTime(True), server_default=func.now())
 
