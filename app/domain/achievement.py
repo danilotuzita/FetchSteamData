@@ -19,7 +19,7 @@ class Achievement(Base):
     hidden: Mapped[int]
     time_unlocked: Mapped[Optional[int]]
     session_id_unlocked: Mapped[Optional[int]]
-    session_fetched_time: Mapped[DateTime] = mapped_column(DateTime(True), server_default=func.now())
+    fetch_time: Mapped[DateTime] = mapped_column(server_default=func.now())
 
     def __repr__(self) -> str:
-        return f"Achievement(appid={self.appid!r},name={self.name!r},game_name={self.game_name!r},display_name={self.display_name!r},description={self.description!r},hidden={self.hidden!r},session_id_unlocked={self.session_id_unlocked!r},session_fetched_time={TimeUtil.unixtime_to_localtime_str(self.session_fetched_time)})"
+        return f"Achievement(appid={self.appid!r},name={self.name!r},game_name={self.game_name!r},display_name={self.display_name!r},description={self.description!r},hidden={self.hidden!r},session_id_unlocked={self.session_id_unlocked!r},fetch_time={self.fetch_time})"

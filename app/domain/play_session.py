@@ -1,24 +1,22 @@
-import datetime
 from sqlalchemy import DateTime, String
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
 from app.domain.base import Base
-from app.util import TimeUtil
 
 
 class PlaySession(Base):
     __tablename__ = 'play_session'
 
-    session_id: Mapped[int] = mapped_column(primary_key=True)
+    operation_id: Mapped[int] = mapped_column(primary_key=True)
     appid: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(128))
     total_minutes_played: Mapped[int]
     minutes_played: Mapped[int]
     session_time: Mapped[int]
     play_count: Mapped[int] = mapped_column(default=1)
-    session_fetched_time: Mapped[DateTime] = mapped_column(DateTime(True), server_default=func.now())
+    fetch_time: Mapped[DateTime] = mapped_column(DateTime(True), server_default=func.now())
 
     def __repr__(self) -> str:
-        return f"PlaySession(session_id={self.session_id!r},appid={self.appid!r},name={self.name!r},total_minutes_played={self.total_minutes_played!r},minutes_played={self.minutes_played!r},session_time={self.session_time!r},play_count={self.play_count!r},session_fetched_time={TimeUtil.unixtime_to_localtime_str(self.session_fetched_time)})"
+        return f"PlaySession(operation_id={self.operation_id!r},appid={self.appid!r},name={self.name!r},total_minutes_played={self.total_minutes_played!r},minutes_played={self.minutes_played!r},session_time={self.session_time!r},play_count={self.play_count!r},session_fetch_time={self.fetch_time})"
