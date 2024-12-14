@@ -57,6 +57,9 @@ class SteamAchivementsService:
 
         SteamAchivementsService.make_achievements(play_session)
         unlocked_at = GetAchivementUnlockedDateApi.get_achievements_unlocked_date(play_session.appid)
+        if not unlocked_at:
+            logging.error(f"Failed to get Unlocked date of achivements for Game name={play_session.name}, appid={play_session.appid}. Skipping")
+            return
         for achievement in user_stats.playerstats.achievements:
             if achievement.achieved != 1:
                 continue

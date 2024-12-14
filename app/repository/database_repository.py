@@ -34,7 +34,7 @@ class DatabaseRepository:
     @staticmethod
     def put_game_history(play_history_list: list[PlayHistory]) -> list[PlayHistory]:
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             for game in play_history_list:
                 game.session_id = DatabaseRepository.current_session_id
                 session.add(game)
@@ -45,7 +45,7 @@ class DatabaseRepository:
     @staticmethod
     def put_achievements(achievements: list[Achievement]) -> list[Achievement]:
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             for achievement in achievements:
                 session.merge(achievement)
             session.commit()
@@ -61,7 +61,7 @@ class DatabaseRepository:
     @staticmethod
     def set_achievement_unlocked(appid: int, name: str, unlocked_time: int = None) -> Achievement:
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             achievement: Achievement = session.scalar(
                 select(Achievement)
                 .where(Achievement.appid == appid)
@@ -79,7 +79,7 @@ class DatabaseRepository:
     @staticmethod
     def get_last_play_session(appid: int) -> PlaySession:
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             return session.scalars(
                 select(PlaySession)
                 .where(PlaySession.appid == appid)
@@ -89,7 +89,7 @@ class DatabaseRepository:
     @staticmethod
     def put_play_session(play_session: PlaySession) -> PlaySession:
         DatabaseRepository.get_session()
-        with Session(DatabaseRepository.engine) as session:
+        with Session(DatabaseRepository.engine, expire_on_commit=False) as session:
             play_session.session_id = DatabaseRepository.current_session_id
             session.add(play_session)
             session.commit()

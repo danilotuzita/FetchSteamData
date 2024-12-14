@@ -1,7 +1,7 @@
 import logging
 import requests
 import urllib
-from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_USER_ID
+from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_USER_ID_64
 from app.api.steam.user_stats_for_game.response import GetUserStatsForGameResponse
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s : %(message)s", level=logging.DEBUG)
@@ -18,7 +18,7 @@ class GetUserStatsForGameApi():
                 urllib.parse.urlencode(
                     {
                         'key': STEAM_API_KEY,
-                        'steamid': STEAM_USER_ID,
+                        'steamid': STEAM_USER_ID_64,
                         'appid': appid
                     }
                 )
