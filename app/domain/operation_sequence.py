@@ -1,5 +1,6 @@
+from sqlite3 import Date
 from typing import Optional
-from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy import DateTime, ForeignKey, String, func
 import sqlalchemy
 import sqlalchemy.event
 from sqlalchemy.orm import Mapped
@@ -19,10 +20,10 @@ class OperationCode(Base):
     @staticmethod
     def insert_data(target, connection, **kw):
         connection.execute(target.insert(), [
-            OperationCode(
-                operation_status=OperationCode.FETCH,
-                description="Fetch Steam Data"
-            )
+            {
+                "operation_code": OperationCode.FETCH,
+                "description": "Fetch Steam Data"
+            }
         ])
 
 
@@ -39,18 +40,18 @@ class OperationStatus(Base):
     @staticmethod
     def insert_data(target, connection, **kw):
         connection.execute(target.insert(), [
-            OperationStatus(
-                operation_status=OperationStatus.START,
-                description="Operation is running"
-            ),
-            OperationStatus(
-                operation_status=OperationStatus.END,
-                description="Operation finished sucessfully"
-            ),
-            OperationStatus(
-                operation_status=OperationStatus.ERROR,
-                description="Operation finished with error"
-            )
+            {
+                "operation_status": OperationStatus.START,
+                "description": "Operation is running"
+            },
+            {
+                "operation_status": OperationStatus.END,
+                "description": "Operation finished successfully"
+            },
+            {
+                "operation_status": OperationStatus.ERROR,
+                "description": "Operation finished with error"
+            }
         ])
 
 
@@ -64,6 +65,9 @@ class OperationSequence(Base):
     operation_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     operation_code: Mapped[str] = mapped_column(ForeignKey(OperationCode.operation_code))
     operation_status: Mapped[str] = mapped_column(ForeignKey(OperationStatus.operation_status))
-    operation_message: Mapped[Optional[str]]
-    operation_start_time: Mapped[DateTime] = mapped_column(server_default=func.now())
-    execution_end_time: Mapped[Optional[DateTime]]
+    operation_message: Mapped[Optional[str]] = mapped_column(String(128))
+    operation_start_time: Mapped[DateTime] = mapped_column(DateTime())
+    operation_end_time: Mapped[Optional[DateTime]] = mapped_column(DateTime())
+
+    def __repr__(self) -> str:
+        return f"OperationSequence(operation_id={self.operation_id!r},operation_code={self.operation_code!r},operation_status={self.operation_status!r},operation_message={self.operation_message!r},operation_start_time='{self.operation_start_time}',operation_end_time='{self.operation_end_time}')"

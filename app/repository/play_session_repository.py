@@ -9,20 +9,18 @@ from app.repository.database_service import DatabaseService
 class PlaySessionRepository():
     @staticmethod
     def get_last_play_session(appid: int) -> PlaySession:
-        DatabaseService.get_operation()
-        with Session(DatabaseService.engine) as session:
-            return session.scalars(
+        with Session(DatabaseService.engine, expire_on_commit=False) as session:
+            play_session = session.scalars(
                 select(PlaySession)
                 .where(PlaySession.appid == appid)
-                .order_by(PlaySession.operation_id.desc())
+                .order_by(PlaySession.session_id.desc())
             ).first()
+            return play_session
 
     @staticmethod
     def put_play_session(play_session: PlaySession) -> PlaySession:
-        operation_id = DatabaseService.get_operation()
-        with Session(DatabaseService.engine) as session:
-            play_session.operation_id = operation_id
+        with Session(DatabaseService.engine, expire_on_commit=False) as session:
+            play_session.session_id = DatabaseService.get_current_operation_id()
             session.add(play_session)
             session.commit()
-            session.expunge_all()
             return play_session

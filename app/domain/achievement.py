@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
 from app.domain.base import Base
-from app.util import TimeUtil
 
 
 class Achievement(Base):
@@ -19,7 +18,7 @@ class Achievement(Base):
     hidden: Mapped[int]
     time_unlocked: Mapped[Optional[int]]
     session_id_unlocked: Mapped[Optional[int]]
-    fetch_time: Mapped[DateTime] = mapped_column(server_default=func.now())
+    fetch_time: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
 
     def __repr__(self) -> str:
         return f"Achievement(appid={self.appid!r},name={self.name!r},game_name={self.game_name!r},display_name={self.display_name!r},description={self.description!r},hidden={self.hidden!r},session_id_unlocked={self.session_id_unlocked!r},fetch_time={self.fetch_time})"

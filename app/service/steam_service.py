@@ -3,10 +3,8 @@ from app.api.steam.community.achievements.api import GetAchivementUnlockedDateAp
 from app.api.steam.owned_games.response import GetOwnedGamesResponseGame
 from app.api.steam.steam_service_api import SteamServiceApi
 from app.domain.achievement import Achievement
-from app.domain.play_history import PlayHistory
 from app.domain.play_session import PlaySession
 from app.repository.achievement_repository import AchievementRepository
-from app.repository.database_service import DatabaseService
 from app.repository.play_session_repository import PlaySessionRepository
 from app.util import TimeUtil
 
@@ -28,16 +26,16 @@ class SteamService:
         return [game for game in owned_games_response.games if game.playtime_forever]
 
     @staticmethod
-    def make_play_session(current: GetOwnedGamesResponseGame) -> PlaySession | None:
-        last_play_session = PlaySessionRepository.get_last_play_session(current.appid)
-        if last_play_session and last_play_session.session_time >= current.rtime_last_played:
-            logging.debug(f"Skipping Play Session for Game name={current.name}, appid={current.appid}. No changes detected.")
+    def make_play_session(game: GetOwnedGamesResponseGame) -> PlaySession:
+        last_play_session = PlaySessionRepository.get_last_play_session(game.appid)
+        if last_play_session and last_play_session.session_time >= game.rtime_last_played:
+            logging.debug(f"Skipping Play Session for Game name={game.name}, appid={game.appid}. No changes detected.")
             return None
-        minutes_played = current.playtime_forever - last_play_session.total_minutes_played if last_play_session else 0
+        minutes_played = game.playtime_forever - (last_play_session.total_minutes_played if last_play_session else 0)
         play_count = last_play_session.play_count + 1 if last_play_session else 1
-        logging.info(f"New Play Session for Game name={current.name}, appid={current.appid}. Minutes Played={minutes_played}, Last Played={TimeUtil.unixtime_to_localtime_str(current.rtime_last_played)}, Play Count={play_count}.")
+        logging.info(f"New Play Session for Game name={game.name}, appid={game.appid}. Minutes Played={minutes_played}, Last Played={TimeUtil.unixtime_to_localtime_str(game.rtime_last_played)}, Play Count={play_count}.")
 
-        new_play_session = PlaySession(appid=current.appid, name=current.name, total_minutes_played=current.playtime_forever, minutes_played=minutes_played, session_time=current.rtime_last_played, play_count=play_count)
+        new_play_session = PlaySession(appid=game.appid, name=game.name, total_minutes_played=game.playtime_forever, minutes_played=minutes_played, session_time=game.rtime_last_played, play_count=play_count)
         PlaySessionRepository.put_play_session(new_play_session)
         return new_play_session
 
@@ -53,7 +51,7 @@ class SteamAchivementsService:
         SteamAchivementsService.make_achievements(play_session)
         unlocked_at = GetAchivementUnlockedDateApi.get_achievements_unlocked_date(play_session.appid)
         if not unlocked_at:
-            logging.error(f"Failed to get Unlocked date of achivements for Game name={play_session.name}, appid={play_session.appid}. Skipping")
+            logging.error(f"Failed to get Unlocked date of achivements for Game name={play_session.name}, appid={play_session.appid}. Skipping...")
             return
         for achievement in user_stats.playerstats.achievements:
             if achievement.achieved != 1:
