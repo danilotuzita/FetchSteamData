@@ -26,6 +26,8 @@ class DatabaseService:
         return DatabaseService.current_operation_id
 
 
-from app.domain.achievement import Achievement  # noqa
+from app.domain.operation_sequence import OperationCode, OperationSequence, OperationStatus  # noqa
+from app.domain.game import Game  # noqa
 from app.domain.play_session import PlaySession  # noqa
+from app.domain.achievement import Achievement  # noqa
 Base.metadata.create_all(DatabaseService.engine)

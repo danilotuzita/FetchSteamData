@@ -8,7 +8,7 @@ def minutes_to_hours(playtime: int) -> str:
 
 @staticmethod
 def unixtime_to_localtime_str(unixtime: int) -> str:
-    return dt.fromtimestamp(unixtime).strftime('"%d/%m/%Y %H:%M:%S"')
+    return dt.fromtimestamp(unixtime).strftime('%Y-%m-%d %H:%M:%S')
 
 
 @staticmethod
