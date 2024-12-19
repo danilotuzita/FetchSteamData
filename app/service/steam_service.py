@@ -1,84 +1,108 @@
 import logging
+
 from app.api.steam.community.achievements.api import GetAchivementUnlockedDateApi
 from app.api.steam.owned_games.response import GetOwnedGamesResponseGame
 from app.api.steam.steam_service_api import SteamServiceApi
 from app.domain.achievement import Achievement
-from app.domain.play_history import PlayHistory
+from app.domain.game import Game
 from app.domain.play_session import PlaySession
-from app.repository.database_repository import DatabaseRepository
+from app.repository.achievement_repository import AchievementRepository
+from app.repository.game_repository import GameRepository
+from app.repository.play_session_repository import PlaySessionRepository
 from app.util import TimeUtil
 
 
 class SteamService:
     @staticmethod
     def fetch_user_data_from_steam_api_and_save_to_db():
-        played_games = SteamService.get_played_games()
+        owned_games = SteamGamesService.update_owned_games()
+        played_games = [game for game in owned_games if game.playtime_forever]
 
-        logging.info(f"Making Play History")
-        play_history: list[PlayHistory] = []
+        logging.info(f'Making Play Sessions...')
         for game in played_games:
-            play_history.append(PlayHistory(**vars(game)))
-            logging.debug(f"New PlayHistory={game}.")
-        DatabaseRepository.put_game_history(play_history)
-
-        logging.info(f"Making Play Sessions")
-        for game in play_history:
             play_session = SteamService.make_play_session(game)
             if play_session:
-                SteamAchivementsService.fetch_game_data_from_steam_api_and_save_to_db(play_session)
+                SteamAchivementsService.update_achivements(game)
+                SteamGamesService.update_game(game, play_session)
 
     @staticmethod
-    def get_played_games() -> list[GetOwnedGamesResponseGame]:
-        owned_games_response = SteamServiceApi.get_owned_games()
-        return [game for game in owned_games_response.games if game.playtime_forever]
-
-    @staticmethod
-    def make_play_session(current: PlayHistory) -> PlaySession:
-        last_play_session = DatabaseRepository.get_last_play_session(current.appid)
-        if last_play_session and last_play_session.session_time >= current.rtime_last_played:
-            logging.debug(f"Skipping Play Session for Game name={current.name}, appid={current.appid}. No changes detected.")
+    def make_play_session(game_api: GetOwnedGamesResponseGame) -> PlaySession:
+        game_db = GameRepository.get_game(game_api.appid)
+        if game_db and game_db.last_played >= game_api.rtime_last_played:
+            logging.debug(f'Skipping Play Session for Game name="{game_api.name}", appid={game_api.appid}. No changes detected.')
             return None
-        minutes_played = current.playtime_forever - last_play_session.total_minutes_played if last_play_session else 0
-        play_count = last_play_session.play_count + 1 if last_play_session else 1
-        logging.info(f"New Play Session for Game name={current.name}, appid={current.appid}. Minutes Played={minutes_played}, Last Played={TimeUtil.unixtime_to_localtime_str(current.rtime_last_played)}, Play Count={play_count}.")
+        minutes_played = game_api.playtime_forever - (game_db.total_minutes_played if game_db else 0)
+        play_count = game_db.total_play_count + 1 if game_db else 1
+        logging.info(f'New Play Session for Game name="{game_api.name}", appid={game_api.appid}, minutes_played={minutes_played}, last_played="{TimeUtil.unixtime_to_localtime_str(game_api.rtime_last_played)}", play_count={play_count}.')
 
-        new_play_session = PlaySession(appid=current.appid, name=current.name, total_minutes_played=current.playtime_forever, minutes_played=minutes_played, session_time=current.rtime_last_played, play_count=play_count)
-        DatabaseRepository.put_play_session(new_play_session)
+        new_play_session = PlaySession(appid=game_api.appid, minutes_played=minutes_played, session_time=game_api.rtime_last_played, play_count=play_count)
+        PlaySessionRepository.put_play_session(new_play_session)
         return new_play_session
 
 
 class SteamAchivementsService:
     @staticmethod
-    def fetch_game_data_from_steam_api_and_save_to_db(play_session: PlaySession):
-        user_stats = SteamServiceApi.get_user_stats_for_game(play_session.appid)
+    def update_achivements(game: Game):
+        user_stats = SteamServiceApi.get_user_stats_for_game(game.appid)
         if user_stats is None or user_stats.playerstats is None:
-            logging.error(f"Failed to get User Stats for Game name={play_session.name}, appid={play_session.appid}. Skipping...")
+            logging.error(f'Failed to get User Stats for Game name="{game.name}", appid={game.appid}. Skipping...')
             return
 
-        SteamAchivementsService.make_achievements(play_session)
-        unlocked_at = GetAchivementUnlockedDateApi.get_achievements_unlocked_date(play_session.appid)
+        SteamAchivementsService.make_achievements(game)
+        unlocked_at = GetAchivementUnlockedDateApi.get_achievements_unlocked_date(game.appid)
         if not unlocked_at:
-            logging.error(f"Failed to get Unlocked date of achivements for Game name={play_session.name}, appid={play_session.appid}. Skipping")
+            logging.error(f'Failed to get Unlocked date of achivements for Game name="{game.name}", appid={game.appid}. Skipping...')
             return
         for achievement in user_stats.playerstats.achievements:
             if achievement.achieved != 1:
                 continue
-            updated_achievement = DatabaseRepository.set_achievement_unlocked(play_session.appid, achievement.name, unlocked_at[achievement.name.upper()])
+            updated_achievement = AchievementRepository.set_achievement_unlocked(game.appid, achievement.name, unlocked_at[achievement.name.upper()])
             if updated_achievement:
-                logging.info(f"New Achievement Unlocked for Game! name={updated_achievement.game_name}, appid={updated_achievement.appid}, achievement={updated_achievement.description}, unlocked_at={TimeUtil.unixtime_to_localtime_str(updated_achievement.time_unlocked)}")
+                logging.info(f'New Achievement Unlocked for Game! name="{updated_achievement.game_name}", appid={updated_achievement.appid}, achievement="{updated_achievement.display_name}", unlocked_at="{TimeUtil.unixtime_to_localtime_str(updated_achievement.time_unlocked)}".')
 
     @staticmethod
-    def make_achievements(play_session: PlaySession):
-        db_achievement_count = DatabaseRepository.get_app_achivements_count(play_session.appid)
-        game_schema = SteamServiceApi.get_schema_for_game(play_session.appid)
+    def make_achievements(game: Game):
+        db_achievement_count = AchievementRepository.get_app_achivements_count(game.appid)
+        game_schema = SteamServiceApi.get_schema_for_game(game.appid)
         if game_schema is None or game_schema.game is None or game_schema.game.availableGameStats is None:
-            logging.error(f"Failed to get Game Schema for Game name={play_session.name}, appid={play_session.appid}. Skipping...")
+            logging.error(f'Failed to get Game Schema for Game name="{game.name}", appid={game.appid}. Skipping...')
             return
         if db_achievement_count >= len(game_schema.game.availableGameStats.achievements):
             return
 
-        logging.info(f"Found new Achievements for Game name={play_session.name}, appid={play_session.appid}. DbCount={db_achievement_count}, SteamCount={len(game_schema.game.availableGameStats.achievements)}.")
+        logging.info(f'Found new Achievements for Game name="{game.name}", appid={game.appid}. db_count={db_achievement_count}, steam_count={len(game_schema.game.availableGameStats.achievements)}.')
         achievements: list[Achievement] = []
         for achievement in game_schema.game.availableGameStats.achievements:
-            achievements.append(Achievement(appid=play_session.appid, name=achievement.name, game_name=play_session.name, display_name=achievement.displayName, description=achievement.description, hidden=achievement.hidden))
-        DatabaseRepository.put_achievements(achievements)
+            achievements.append(Achievement(appid=game.appid, name=achievement.name, game_name=game.name, display_name=achievement.displayName, description=achievement.description, hidden=achievement.hidden))
+        AchievementRepository.put_achievements(achievements)
+
+
+class SteamGamesService:
+    @staticmethod
+    def update_owned_games() -> list[GetOwnedGamesResponseGame]:
+        owned_games_response = SteamServiceApi.get_owned_games()
+        SteamGamesService.check_owned_games(owned_games_response.games)
+        return owned_games_response.games
+
+    @staticmethod
+    def check_owned_games(games: list[GetOwnedGamesResponseGame]):
+        logging.info(f'Checking Owned Games... Total={len(games)}')
+        for game_api in games:
+            if GameRepository.get_game(game_api.appid):
+                logging.debug(f'Skipping Owned Game name="{game_api.name}", appid={game_api.appid}. Game already exists in DB.')
+                continue
+            GameRepository.put_game(Game(
+                appid=game_api.appid,
+                name=game_api.name
+            ))
+            logging.info(f'New Owned Game found! name="{game_api.name}", appid={game_api.appid}, total_minutes_played={game_api.playtime_forever}.')
+
+    @staticmethod
+    def update_game(game_api: GetOwnedGamesResponseGame, play_session: PlaySession):
+        game_db = GameRepository.get_game(game_api.appid)
+        game_db.last_played = game_api.rtime_last_played
+        game_db.total_minutes_played = game_api.playtime_forever
+        game_db.total_play_count = play_session.play_count
+        game_db.last_session_id = play_session.session_id
+        logging.debug(f'Updating Owned Game name="{game_db.name}", appid={game_db.appid}, last_played="{TimeUtil.unixtime_to_localtime_str(game_db.last_played)}", total_minutes_played={game_db.total_minutes_played}, total_play_count={game_db.total_play_count}, last_session_id={game_db.last_session_id}.')
+        GameRepository.put_game(game_db)

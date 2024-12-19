@@ -1,4 +1,3 @@
-
 class GetSchemaForGameResponseGameAvailableGameStatsAchievements():
     def __init__(self, name: str, displayName: str, hidden: int, description: str = "", **ignore) -> None:
         self.name = name

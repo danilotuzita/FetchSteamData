@@ -1,6 +1,7 @@
 import logging
 import urllib
 import requests
+
 from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_USER_ID_64
 from app.api.steam.owned_games.response import GetOwnedGamesResponse
 
