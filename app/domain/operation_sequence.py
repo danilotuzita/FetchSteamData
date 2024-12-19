@@ -1,4 +1,3 @@
-from sqlite3 import Date
 from typing import Optional
 from sqlalchemy import DateTime, ForeignKey, String, func
 import sqlalchemy
