@@ -15,6 +15,7 @@ class OperationCode(Base):
     description: Mapped[str]
 
     FETCH = "FETCH"
+    MANUAL_OPERATION = "MANUAL_OPERATION"
 
     @staticmethod
     def insert_data(target, connection, **kw):
@@ -22,6 +23,10 @@ class OperationCode(Base):
             {
                 "operation_code": OperationCode.FETCH,
                 "description": "Fetch Steam Data"
+            },
+            {
+                "operation_code": OperationCode.MANUAL_OPERATION,
+                "description": "Manual Operation to fix data"
             }
         ])
 

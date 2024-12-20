@@ -2,7 +2,7 @@ import logging
 import urllib
 import requests
 
-from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_USER_ID_64
+from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_ID_64
 from app.api.steam.owned_games.response import GetOwnedGamesResponse
 
 
@@ -11,7 +11,7 @@ class GetOwnedGamesApi():
     get_owned_games_param = urllib.parse.urlencode(
         {
             'key': STEAM_API_KEY,
-            'steamid': STEAM_USER_ID_64,
+            'steamid': STEAM_ID_64,
             'include_appinfo': True,
             'include_played_free_games': True
         }

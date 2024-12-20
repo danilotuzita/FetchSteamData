@@ -1,6 +1,5 @@
 import logging
 
-from app.api.steam.community.achievements.api import GetAchivementUnlockedDateApi
 from app.api.steam.owned_games.response import GetOwnedGamesResponseGame
 from app.api.steam.steam_service_api import SteamServiceApi
 from app.domain.achievement import Achievement
@@ -43,38 +42,38 @@ class SteamService:
 class SteamAchivementsService:
     @staticmethod
     def update_achivements(game: Game):
-        user_stats = SteamServiceApi.get_user_stats_for_game(game.appid)
-        if user_stats is None or user_stats.playerstats is None:
-            logging.error(f'Failed to get User Stats for Game name="{game.name}", appid={game.appid}. Skipping...')
-            return
+        if SteamAchivementsService.make_achievements(game):
+            SteamAchivementsService.unlock_achivements(game)
 
-        SteamAchivementsService.make_achievements(game)
-        unlocked_at = GetAchivementUnlockedDateApi.get_achievements_unlocked_date(game.appid)
-        if not unlocked_at:
+    @staticmethod
+    def unlock_achivements(game: Game):
+        achievements = SteamServiceApi.get_player_achievements(game.appid)
+        if not achievements or not achievements.playerstats or not achievements.playerstats.achievements:
             logging.error(f'Failed to get Unlocked date of achivements for Game name="{game.name}", appid={game.appid}. Skipping...')
             return
-        for achievement in user_stats.playerstats.achievements:
+        for achievement in achievements.playerstats.achievements:
             if achievement.achieved != 1:
                 continue
-            updated_achievement = AchievementRepository.set_achievement_unlocked(game.appid, achievement.name, unlocked_at[achievement.name.upper()])
+            updated_achievement = AchievementRepository.set_achievement_unlocked(game.appid, achievement.apiname, achievement.unlocktime)
             if updated_achievement:
                 logging.info(f'New Achievement Unlocked for Game! name="{updated_achievement.game_name}", appid={updated_achievement.appid}, achievement="{updated_achievement.display_name}", unlocked_at="{TimeUtil.unixtime_to_localtime_str(updated_achievement.time_unlocked)}".')
 
     @staticmethod
-    def make_achievements(game: Game):
+    def make_achievements(game: Game) -> bool:
         db_achievement_count = AchievementRepository.get_app_achivements_count(game.appid)
         game_schema = SteamServiceApi.get_schema_for_game(game.appid)
         if game_schema is None or game_schema.game is None or game_schema.game.availableGameStats is None:
             logging.error(f'Failed to get Game Schema for Game name="{game.name}", appid={game.appid}. Skipping...')
-            return
+            return False
         if db_achievement_count >= len(game_schema.game.availableGameStats.achievements):
-            return
+            return True
 
         logging.info(f'Found new Achievements for Game name="{game.name}", appid={game.appid}. db_count={db_achievement_count}, steam_count={len(game_schema.game.availableGameStats.achievements)}.')
         achievements: list[Achievement] = []
         for achievement in game_schema.game.availableGameStats.achievements:
             achievements.append(Achievement(appid=game.appid, name=achievement.name, game_name=game.name, display_name=achievement.displayName, description=achievement.description, hidden=achievement.hidden))
         AchievementRepository.put_achievements(achievements)
+        return True
 
 
 class SteamGamesService:
