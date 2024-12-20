@@ -4,8 +4,7 @@ Create a `.env` file in the root of the project with the following configuration
 ``` ini
 # USER KEYS
 STEAM_API_KEY=<YOUR STEAM KEY API>
-STEAM_USER_ID_64=<YOUR STEAM 64BIT ID>
-STEAM_USER_ID=<YOUR STEAM CUSTOM URL>
+STEAM_ID_64=<YOUR STEAM 64BIT ID>
 ```
 You also can also set the following enviroment variables:
 VARIABLE        | DESCRIPTION                   | DEFAULT

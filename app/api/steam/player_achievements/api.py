@@ -2,31 +2,31 @@ import logging
 import requests
 import urllib
 
-from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_USER_ID_64
-from app.api.steam.user_stats_for_game.response import GetUserStatsForGameResponse
+from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_ID_64
+from app.api.steam.player_achievements.response import GetPlayerAchievementsResponse
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s : %(message)s", level=logging.DEBUG)
 
 
-class GetUserStatsForGameApi():
-    get_user_stats_for_game_url = "https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/"
+class GetPlayerAchievements():
+    get_player_achievements_url = "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/"
 
     @staticmethod
-    def get_user_stats_for_game(appid: int) -> GetUserStatsForGameResponse:
+    def get_player_achievements(appid: int) -> GetPlayerAchievementsResponse:
         try:
             response = requests.get(
-                GetUserStatsForGameApi.get_user_stats_for_game_url,
+                GetPlayerAchievements.get_player_achievements_url,
                 urllib.parse.urlencode(
                     {
                         'key': STEAM_API_KEY,
-                        'steamid': STEAM_USER_ID_64,
+                        'steamid': STEAM_ID_64,
                         'appid': appid
                     }
                 )
             )
             response.raise_for_status()
             json = response.json()
-            return GetUserStatsForGameResponse(**json)
+            return GetPlayerAchievementsResponse(**json)
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 400:
                 logging.debug(f"No achievements found for appid={appid}")

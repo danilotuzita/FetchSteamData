@@ -10,16 +10,18 @@ from app.repository.database_service import DatabaseService
 
 class OperationSequenceHandler():
 
-    def __init__(self, operation_code=OperationCode.FETCH) -> None:
+    def __init__(self, operation_code=OperationCode.FETCH, message: str = None) -> None:
         self.operation_code = operation_code
         self.exception: Exception = None
+        self.message: str = message
 
     def __enter__(self) -> "OperationSequenceHandler":
         with Session(DatabaseService.engine) as session:
             operation = OperationSequence(
                 operation_code=self.operation_code,
                 operation_status=OperationStatus.START,
-                operation_start_time=datetime.datetime.now(datetime.UTC)
+                operation_start_time=datetime.datetime.now(datetime.UTC),
+                operation_message=self.message
             )
             session.add(operation)
             session.commit()
