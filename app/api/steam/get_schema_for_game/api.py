@@ -2,7 +2,7 @@ import logging
 import requests
 import urllib
 
-from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_USER_ID_64
+from app.api.steam.consts.consts import STEAM_API_KEY, STEAM_ID_64
 from app.api.steam.get_schema_for_game.response import GetSchemaForGameResponse
 
 
@@ -17,7 +17,7 @@ class GetSchemaForGameApi():
                 urllib.parse.urlencode(
                     {
                         'key': STEAM_API_KEY,
-                        'steamid': STEAM_USER_ID_64,
+                        'steamid': STEAM_ID_64,
                         'appid': appid
                     }
                 )

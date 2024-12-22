@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import Sequence, select
 from sqlalchemy.orm import Session
 
 from app.domain.game import Game
@@ -20,3 +20,8 @@ class GameRepository():
             session.merge(game)
             session.commit()
             return game
+
+    @staticmethod
+    def get_all_games() -> list[Game]:
+        with Session(DatabaseService.engine) as session:
+            return session.scalars(select(Game)).all()
