@@ -22,7 +22,13 @@ class SteamService:
             play_session = SteamService.make_play_session(game)
             if play_session:
                 SteamAchivementsService.update_achivements(game)
-                SteamGamesService.update_game(game, play_session)
+                SteamGamesService.update_game(
+                    game.appid,
+                    game.rtime_last_played,
+                    game.playtime_forever,
+                    play_session.play_count,
+                    play_session.session_id
+                )
 
     @staticmethod
     def make_play_session(game_api: GetOwnedGamesResponseGame) -> PlaySession:
@@ -37,6 +43,28 @@ class SteamService:
         new_play_session = PlaySession(appid=game_api.appid, minutes_played=minutes_played, session_time=game_api.rtime_last_played, play_count=play_count)
         PlaySessionRepository.put_play_session(new_play_session)
         return new_play_session
+
+    @staticmethod
+    def undo_play_session(appid: int):
+        game = GameRepository.get_game(appid)
+        session = PlaySessionRepository.get_last_play_session(appid)
+        if not game or not session:
+            logging.error(f'Session or Game not found for appid={appid}! Skipping...')
+            return
+        logging.info(f'Undoing {session}!!!')
+        # Update Game
+        logging.warning(f'Game before {game}')
+        SteamGamesService.update_game(appid, 0, game.total_minutes_played - session.minutes_played, game.total_play_count - 1, 0)
+        game = GameRepository.get_game(appid)
+        logging.warning(f'Game after {game}')
+
+        # Lock Achievements
+        SteamAchivementsService.lock_achivements_of_session(session)
+        logging.warning(f'Removing {session}')
+
+        # Remove Session
+        PlaySessionRepository.remove_play_session(session)
+        logging.info(f'Session Undone')
 
 
 class SteamAchivementsService:
@@ -75,6 +103,14 @@ class SteamAchivementsService:
         AchievementRepository.put_achievements(achievements)
         return True
 
+    @staticmethod
+    def lock_achivements_of_session(session: PlaySession):
+        logging.warning(f'Locking achievements of {session}')
+        achievements: list[Achievement] = AchievementRepository.get_session_achievements(session.appid, session.session_id)
+        for achievement in achievements:
+            logging.warning(f'Locking {achievement}')
+            AchievementRepository.lock_achievement(achievement.appid, achievement.name)
+
 
 class SteamGamesService:
     @staticmethod
@@ -97,11 +133,11 @@ class SteamGamesService:
             logging.info(f'New Owned Game found! name="{game_api.name}", appid={game_api.appid}, total_minutes_played={game_api.playtime_forever}.')
 
     @staticmethod
-    def update_game(game_api: GetOwnedGamesResponseGame, play_session: PlaySession):
-        game_db = GameRepository.get_game(game_api.appid)
-        game_db.last_played = game_api.rtime_last_played
-        game_db.total_minutes_played = game_api.playtime_forever
-        game_db.total_play_count = play_session.play_count
-        game_db.last_session_id = play_session.session_id
+    def update_game(appid: int, last_played: int, total_minutes_played: int, total_play_count: int, last_session_id: int):
+        game_db = GameRepository.get_game(appid)
+        game_db.last_played = last_played
+        game_db.total_minutes_played = total_minutes_played
+        game_db.total_play_count = total_play_count
+        game_db.last_session_id = last_session_id
         logging.debug(f'Updating Owned Game name="{game_db.name}", appid={game_db.appid}, last_played="{TimeUtil.unixtime_to_localtime_str(game_db.last_played)}", total_minutes_played={game_db.total_minutes_played}, total_play_count={game_db.total_play_count}, last_session_id={game_db.last_session_id}.')
         GameRepository.put_game(game_db)
