@@ -1,3 +1,4 @@
+import re
 from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped
@@ -6,6 +7,7 @@ from sqlalchemy.orm import mapped_column
 from app.domain.base import Base
 from app.domain.game import Game
 from app.domain.operation_sequence import OperationSequence
+from app.util import TimeUtil
 
 
 class PlaySession(Base):
@@ -19,4 +21,15 @@ class PlaySession(Base):
     fetch_time: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
 
     def __repr__(self) -> str:
-        return f"PlaySession(session_id={self.session_id!r},appid={self.appid!r},name={self.game.name!r},total_minutes_played={self.game.total_minutes_played!r},minutes_played={self.minutes_played!r},session_time={self.session_time!r},play_count={self.play_count!r},session_fetch_time={self.fetch_time})"
+        return re.sub(
+            r"^ +|\n", "",
+            f"""
+            PlaySession(
+                session_id={self.session_id!r},
+                appid={self.appid!r},
+                minutes_played={TimeUtil.minutes_to_hours(self.minutes_played)},
+                session_time='{TimeUtil.unixtime_to_localtime_str(self.session_time)}',
+                play_count={self.play_count!r},
+                session_fetch_time='{self.fetch_time}'
+            )""", flags=re.MULTILINE
+        )

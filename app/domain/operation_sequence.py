@@ -15,7 +15,9 @@ class OperationCode(Base):
     description: Mapped[str]
 
     FETCH = "FETCH"
+    UNDO_LAST_SESSION = "UNDO_LAST_SESSION"
     MANUAL_OPERATION = "MANUAL_OPERATION"
+    DEVELOPMENT = "DEVELOPMENT"
 
     @staticmethod
     def insert_data(target, connection, **kw):
@@ -25,9 +27,17 @@ class OperationCode(Base):
                 "description": "Fetch Steam Data"
             },
             {
+                "operation_code": OperationCode.UNDO_LAST_SESSION,
+                "description": "Undo last session for game"
+            },
+            {
                 "operation_code": OperationCode.MANUAL_OPERATION,
                 "description": "Manual Operation to fix data"
-            }
+            },
+            {
+                "operation_code": OperationCode.DEVELOPMENT,
+                "description": "Code for running the app while developing/testing"
+            },
         ])
 
 

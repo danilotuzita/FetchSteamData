@@ -35,3 +35,26 @@ class AchievementRepository():
             achievement.time_unlocked = unlocked_time
             session.commit()
             return achievement
+
+    @staticmethod
+    def get_session_achievements(appid: int, session_id: int) -> list[Achievement]:
+        with Session(DatabaseService.engine, expire_on_commit=False) as session:
+            return session.scalars(
+                select(Achievement)
+                .where(Achievement.appid == appid)
+                .where(Achievement.session_id_unlocked == session_id)
+            ).all()
+
+    @staticmethod
+    def lock_achievement(appid: int, name: str):
+        with Session(DatabaseService.engine, expire_on_commit=False) as session:
+            achievement: Achievement = session.scalar(
+                select(Achievement)
+                .where(Achievement.appid == appid)
+                .where(func.upper(Achievement.name) == name.upper())
+            )
+            if achievement is None:
+                return
+            achievement.session_id_unlocked = None
+            achievement.time_unlocked = None
+            session.commit()

@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.sql import func
@@ -6,6 +7,7 @@ from sqlalchemy.orm import mapped_column
 
 from app.domain.base import Base
 from app.domain.operation_sequence import OperationSequence
+from app.util import TimeUtil
 
 
 class Game(Base):
@@ -19,3 +21,19 @@ class Game(Base):
     last_session_id: Mapped[Optional[int]] = mapped_column(ForeignKey(OperationSequence.operation_id))
     fetch_time: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now(), onupdate=func.now())
     first_fetched: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
+
+    def __repr__(self):
+        return re.sub(
+            r"^ *|\n", "",
+            f"""
+            Game(
+                appid={self.appid!r},
+                name={self.name!r},
+                last_played='{TimeUtil.unixtime_to_localtime_str(self.last_played)}',
+                total_minutes_played={TimeUtil.minutes_to_hours(self.total_minutes_played)},
+                total_play_count={self.total_play_count!r},
+                last_session_id={self.last_session_id!r},
+                fetch_time='{self.fetch_time}',
+                first_fetched='{self.first_fetched}'
+            )""", flags=re.MULTILINE
+        )
