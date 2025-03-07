@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -22,6 +21,15 @@ class PlaySessionRepository():
                 select(PlaySession)
                 .where(PlaySession.appid == appid)
                 .order_by(PlaySession.session_id.desc())
+            )
+
+    @staticmethod
+    def get_play_session(session_id: int, appid: int) -> PlaySession:
+        with Session(DatabaseService.engine, expire_on_commit=False) as session:
+            return session.scalar(
+                select(PlaySession)
+                .where(PlaySession.session_id == session_id)
+                .where(PlaySession.appid == appid)
             )
 
     @staticmethod

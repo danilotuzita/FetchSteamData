@@ -6,9 +6,11 @@ select ps.session_id as "Session",
        floor(ps.minutes_played / 60) || 'h' || printf('%02d', ps.minutes_played % 60) as "Session Time Played",
        ps.play_count as "Play Count",
        floor(g.total_minutes_played / 60) || 'h' || printf('%02d', g.total_minutes_played % 60) as "Total Time Played",
-       group_concat(a.display_name, '; ') as "Achievements Unlocked"
+       group_concat(a.display_name, '; ') as "Achievements Unlocked",
+       group_concat(distinct n.content) as "Session Notes"
 from game g
 join play_session ps on g.appid = ps.appid
 left join achievement a on ps.appid = a.appid and ps.session_id = a.session_id_unlocked
+left join note n on ps.appid = n.appid and ps.session_id = n.session_id
 group by ps.session_id, g.name, ps.session_time, ps.minutes_played, ps.play_count, g.total_minutes_played
 order by ps.session_time desc;

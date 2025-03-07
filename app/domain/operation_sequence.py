@@ -84,4 +84,15 @@ class OperationSequence(Base):
     operation_end_time: Mapped[Optional[DateTime]] = mapped_column(DateTime())
 
     def __repr__(self) -> str:
-        return f"OperationSequence(operation_id={self.operation_id!r},operation_code={self.operation_code!r},operation_status={self.operation_status!r},operation_message={self.operation_message!r},operation_start_time='{self.operation_start_time}',operation_end_time='{self.operation_end_time}')"
+        return self.to_string(
+            f"""
+            OperationSequence(
+                operation_id={self.operation_id!r},
+                operation_code={self.operation_code!r},
+                operation_status={self.operation_status!r},
+                operation_message={self.operation_message!r},
+                operation_start_time='{self.operation_start_time}',
+                operation_end_time='{self.operation_end_time}'
+            )
+            """
+        )
