@@ -42,7 +42,7 @@ def development():
     with OperationSequenceHandler(OperationCode.DEVELOPMENT, "Notes [WIP]") as operation_sequence:
         try:
             from app.service.note_service import NoteService
-            NoteService.make_note_to_last_play_session(1091500)
+            NoteService.make_note_interactive()
         except Exception as e:
             logging.exception(f"Unexpected Error!!!")
             operation_sequence.set_exception(e)

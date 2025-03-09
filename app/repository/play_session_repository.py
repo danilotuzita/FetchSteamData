@@ -37,3 +37,14 @@ class PlaySessionRepository():
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
             session.delete(play_session)
             session.commit()
+
+    @staticmethod
+    def get_play_sessions(appid: int, offset: int = 0, limit: int = 10) -> list[PlaySession]:
+        with Session(DatabaseService.engine, expire_on_commit=False) as session:
+            return session.scalars(
+                select(PlaySession)
+                .where(PlaySession.appid == appid)
+                .order_by(PlaySession.session_id.desc())
+                .offset(offset)
+                .limit(limit)
+            ).all()
