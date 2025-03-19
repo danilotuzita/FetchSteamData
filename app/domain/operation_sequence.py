@@ -16,6 +16,7 @@ class OperationCode(Base):
 
     FETCH = "FETCH"
     UNDO_LAST_SESSION = "UNDO_LAST_SESSION"
+    ADD_NOTE = "ADD_NOTE"
     MANUAL_OPERATION = "MANUAL_OPERATION"
     DEVELOPMENT = "DEVELOPMENT"
 
@@ -29,6 +30,10 @@ class OperationCode(Base):
             {
                 "operation_code": OperationCode.UNDO_LAST_SESSION,
                 "description": "Undo last session for game"
+            },
+            {
+                "operation_code": OperationCode.ADD_NOTE,
+                "description": "Add note for session"
             },
             {
                 "operation_code": OperationCode.MANUAL_OPERATION,

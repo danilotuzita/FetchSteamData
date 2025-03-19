@@ -7,7 +7,7 @@ from app.domain.operation_sequence import OperationCode
 
 
 def fetch():
-    with OperationSequenceHandler() as operation_sequence:
+    with OperationSequenceHandler(OperationCode.FETCH) as operation_sequence:
         try:
             SteamService.fetch_user_data_from_steam_api_and_save_to_db()
         except Exception as e:
@@ -19,6 +19,16 @@ def undo_last_session(appid: int):
     with OperationSequenceHandler(OperationCode.UNDO_LAST_SESSION, f"Undo Last Session appid={appid}") as operation_sequence:
         try:
             SteamService.undo_last_play_session(appid)
+        except Exception as e:
+            logging.exception(f"Unexpected Error!!!")
+            operation_sequence.set_exception(e)
+
+
+def add_note():
+    with OperationSequenceHandler(OperationCode.ADD_NOTE) as operation_sequence:
+        try:
+            from app.service.note_service import NoteService
+            NoteService.make_note_interactive()
         except Exception as e:
             logging.exception(f"Unexpected Error!!!")
             operation_sequence.set_exception(e)
@@ -54,7 +64,7 @@ if __name__ == "__main__":
             logging.info(banner.read())
     except:
         logging.info("FetchSteamData")
-    mode = OperationCode.DEVELOPMENT
+    mode = OperationCode.FETCH
     match mode:
         case OperationCode.FETCH:
             fetch()
