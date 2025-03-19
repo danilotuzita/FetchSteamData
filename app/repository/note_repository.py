@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 
 from app.domain.note import Note
 from app.repository.database_service import DatabaseService
@@ -13,7 +12,3 @@ class NoteRepository():
             session.add(note)
             session.commit()
             return note
-
-    @staticmethod
-    def get_note(note_id: int):
-        pass

@@ -1,4 +1,4 @@
-from sqlalchemy import func, Sequence, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.game import Game
@@ -25,11 +25,3 @@ class GameRepository():
     def get_all_games() -> list[Game]:
         with Session(DatabaseService.engine) as session:
             return session.scalars(select(Game)).all()
-
-    @staticmethod
-    def find_game_by_name(query: str) -> list[Game]:
-        with Session(DatabaseService.engine) as session:
-            return session.scalars(
-                select(Game)
-                .where(Game.name.ilike(query))
-            )

@@ -52,7 +52,6 @@ class NoteService:
         logging.info(f"Note added: {note}")
 
 
-# TODO: Move to a better service
 class NoteInteractiveService():
     QUIT = Option(value=-1, label="Quit")
     TRY_AGAIN = Option(value=-2, label="Try another game")
@@ -67,10 +66,6 @@ class NoteInteractiveService():
 
     @staticmethod
     def pick_game() -> Game:
-        """
-            Returns:
-                the selected Game
-        """
         logging.info("Activating interactive Note creation!")
         all_games = {game: game.name for game in GameRepository.get_all_games()}
         while True:
@@ -115,10 +110,6 @@ class NoteInteractiveService():
 
     @staticmethod
     def pick_session(game: Game) -> PlaySession:
-        """
-            Returns:
-                the PlaySession selected
-        """
         offset = 0
         found_at_least_once = False
         while True:
