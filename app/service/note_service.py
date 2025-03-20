@@ -43,6 +43,10 @@ class NoteService:
         if (len(content.strip()) == 0):
             logging.info("Note empty! Not adding.")
             return
+        NoteService.put_note(session, content)
+
+    @staticmethod
+    def put_note(session: PlaySession, content: str):
         note = Note(
             session_id=session.session_id,
             appid=session.appid,

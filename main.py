@@ -2,14 +2,16 @@ import config
 import logging
 
 from app.repository.operation_sequence_handler import OperationSequenceHandler
-from app.service.steam_service import SteamService
 from app.domain.operation_sequence import OperationCode
 
 
 def fetch():
     with OperationSequenceHandler(OperationCode.FETCH) as operation_sequence:
         try:
+            from app.service.steam_service import SteamService
+            from app.service.open_taiko_service import OpenTaikoService
             SteamService.fetch_user_data_from_steam_api_and_save_to_db()
+            OpenTaikoService.fetch_session_from_log_and_save_to_db()
         except Exception as e:
             logging.exception(f"Unexpected Error!!!")
             operation_sequence.set_exception(e)
@@ -18,6 +20,7 @@ def fetch():
 def undo_last_session(appid: int):
     with OperationSequenceHandler(OperationCode.UNDO_LAST_SESSION, f"Undo Last Session appid={appid}") as operation_sequence:
         try:
+            from app.service.steam_service import SteamService
             SteamService.undo_last_play_session(appid)
         except Exception as e:
             logging.exception(f"Unexpected Error!!!")
@@ -37,6 +40,7 @@ def add_note():
 def manual():
     with OperationSequenceHandler(OperationCode.MANUAL_OPERATION, "Manual Operation") as operation_sequence:
         try:
+            from app.service.steam_service import SteamService
             from app.repository.game_repository import GameRepository
             from app.service.steam_achivements_service import SteamAchivementsService
             games = GameRepository.get_all_games()
@@ -49,10 +53,10 @@ def manual():
 
 
 def development():
-    with OperationSequenceHandler(OperationCode.DEVELOPMENT, "Notes [WIP]") as operation_sequence:
+    with OperationSequenceHandler(OperationCode.DEVELOPMENT, "Open Taiko [WIP]") as operation_sequence:
         try:
-            from app.service.note_service import NoteService
-            NoteService.make_note_interactive()
+            from app.service.open_taiko_service import OpenTaikoService
+            OpenTaikoService.fetch_session_from_log_and_save_to_db()
         except Exception as e:
             logging.exception(f"Unexpected Error!!!")
             operation_sequence.set_exception(e)
