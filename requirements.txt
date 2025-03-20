@@ -2,3 +2,5 @@ requests
 sqlalchemy
 python-dotenv
 autopep8
+pick
+thefuzz

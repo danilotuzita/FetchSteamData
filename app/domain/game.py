@@ -1,4 +1,3 @@
-import re
 from typing import Optional
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.sql import func
@@ -23,8 +22,7 @@ class Game(Base):
     first_fetched: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
 
     def __repr__(self):
-        return re.sub(
-            r"^ *|\n", "",
+        return self.to_string(
             f"""
             Game(
                 appid={self.appid!r},
@@ -35,5 +33,6 @@ class Game(Base):
                 last_session_id={self.last_session_id!r},
                 fetch_time='{self.fetch_time}',
                 first_fetched='{self.first_fetched}'
-            )""", flags=re.MULTILINE
+            )
+            """
         )

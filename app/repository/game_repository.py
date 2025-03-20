@@ -1,4 +1,4 @@
-from sqlalchemy import Sequence, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.game import Game

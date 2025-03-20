@@ -16,6 +16,7 @@ class OperationCode(Base):
 
     FETCH = "FETCH"
     UNDO_LAST_SESSION = "UNDO_LAST_SESSION"
+    ADD_NOTE = "ADD_NOTE"
     MANUAL_OPERATION = "MANUAL_OPERATION"
     DEVELOPMENT = "DEVELOPMENT"
 
@@ -29,6 +30,10 @@ class OperationCode(Base):
             {
                 "operation_code": OperationCode.UNDO_LAST_SESSION,
                 "description": "Undo last session for game"
+            },
+            {
+                "operation_code": OperationCode.ADD_NOTE,
+                "description": "Add note for session"
             },
             {
                 "operation_code": OperationCode.MANUAL_OPERATION,
@@ -84,4 +89,15 @@ class OperationSequence(Base):
     operation_end_time: Mapped[Optional[DateTime]] = mapped_column(DateTime())
 
     def __repr__(self) -> str:
-        return f"OperationSequence(operation_id={self.operation_id!r},operation_code={self.operation_code!r},operation_status={self.operation_status!r},operation_message={self.operation_message!r},operation_start_time='{self.operation_start_time}',operation_end_time='{self.operation_end_time}')"
+        return self.to_string(
+            f"""
+            OperationSequence(
+                operation_id={self.operation_id!r},
+                operation_code={self.operation_code!r},
+                operation_status={self.operation_status!r},
+                operation_message={self.operation_message!r},
+                operation_start_time='{self.operation_start_time}',
+                operation_end_time='{self.operation_end_time}'
+            )
+            """
+        )
