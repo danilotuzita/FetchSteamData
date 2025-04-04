@@ -1,6 +1,6 @@
 import logging
 
-from app.api.steam.owned_games.response import GetOwnedGamesResponseGame
+from app.api.steam.owned_games.responses import GetOwnedGamesResponseGame
 from app.domain.play_session import PlaySession
 from app.repository.game_repository import GameRepository
 from app.repository.play_session_repository import PlaySessionRepository

@@ -3,7 +3,7 @@ import requests
 import urllib
 
 from app.api.steam.consts import STEAM_API_KEY, STEAM_ID_64
-from app.api.steam.player_achievements.response import GetPlayerAchievementsResponse
+from app.api.steam.player_achievements.responses import GetPlayerAchievementsResponse
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s : %(message)s", level=logging.DEBUG)
 
