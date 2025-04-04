@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 import logging
-from os import path
+import os
 import re
+
+from app.api.opentaiko.consts import OPEN_TAIKO_LOG_PATH
 
 
 @dataclass
@@ -14,17 +16,12 @@ class TaikoSession:
 
 
 class GetTaikoPlaySession():
-    local_data_dir = path.expandvars(r"%LOCALAPPDATA%") + "/"
-    open_taiko_dir = "OpenTaiko Hub/OpenTaiko/"
-    open_taiko_log_name = "OpenTaiko.log"
-
     search_str = r"^(?P<time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) \[(?P<level>.+)\] (?P<message>.+)$"
     matcher = re.compile(search_str)
 
     @staticmethod
     def get_play_session() -> TaikoSession:
-        log_file_path = GetTaikoPlaySession.local_data_dir + GetTaikoPlaySession.open_taiko_dir + GetTaikoPlaySession.open_taiko_log_name
-        log_file_path = log_file_path.replace("\\", "/")
+        log_file_path = GetTaikoPlaySession.sanitize_log_path(OPEN_TAIKO_LOG_PATH)
         with open(log_file_path, mode='r', encoding='utf-8') as log_file:
             taiko_session = TaikoSession()
             for log in log_file:
@@ -47,12 +44,13 @@ class GetTaikoPlaySession():
         match = GetTaikoPlaySession.matcher.match(log)
         if not match:
             return taiko_session
-        time = datetime.fromisoformat(match.group('time').replace("/", "-"))
-        level = match.group('level')
-        message = match.group('message')
 
+        level = match.group('level')
         if level != "INFO":
             return taiko_session
+
+        time = datetime.fromisoformat(match.group('time').replace("/", "-"))
+        message = match.group('message')
         taiko_session._last_time = time
         if message == "Initializing skin...":
             taiko_session.start_time = time
@@ -64,3 +62,10 @@ class GetTaikoPlaySession():
             taiko_session.songs_played.append(message.replace("TITLE: ", ""))
             return taiko_session
         return taiko_session
+
+    @staticmethod
+    def sanitize_log_path(log_path: str) -> str:
+        real_log_path = os.path.expandvars(log_path)
+        if not os.path.exists(real_log_path):
+            raise FileNotFoundError(f"Open Taiko log file not found: {real_log_path}")
+        return real_log_path

@@ -1,6 +1,6 @@
-
 import logging
 from app.api.opentaiko.api import GetTaikoPlaySession
+from app.api.opentaiko.consts import OPEN_TAIKO_APP_ID, OPEN_TAIKO_GAME_NAME
 from app.domain.game import Game
 from app.domain.play_session import PlaySession
 from app.repository.game_repository import GameRepository
@@ -10,16 +10,13 @@ from app.service.steam_games_service import SteamGamesService
 
 
 class OpenTaikoService:
-    OPEN_TAIKO_APP_ID = -1
-    OPEN_TAIKO_NAME = "Open Taiko"
-
     @staticmethod
     def fetch_session_from_log_and_save_to_db():
-        game = GameRepository.get_game(OpenTaikoService.OPEN_TAIKO_APP_ID)
+        game = GameRepository.get_game(OPEN_TAIKO_APP_ID)
         if not game:
             game = GameRepository.put_game(Game(
-                appid=OpenTaikoService.OPEN_TAIKO_APP_ID,
-                name=OpenTaikoService.OPEN_TAIKO_NAME,
+                appid=OPEN_TAIKO_APP_ID,
+                name=OPEN_TAIKO_GAME_NAME,
                 total_minutes_played=0
             ))
 
