@@ -29,7 +29,7 @@ class OpenTaikoService:
             logging.warning(f"No songs played! Skipping session...")
             return
 
-        last_taiko_play_session = PlaySessionRepository.get_last_play_session(OpenTaikoService.OPEN_TAIKO_APP_ID)
+        last_taiko_play_session = PlaySessionRepository.get_last_play_session(OPEN_TAIKO_APP_ID)
         taiko_session.end_time = taiko_session.end_time.replace(microsecond=0)
         minutes_played = round((taiko_session.end_time - taiko_session.start_time).total_seconds() / 60)
         session_time = round(taiko_session.end_time.timestamp())
