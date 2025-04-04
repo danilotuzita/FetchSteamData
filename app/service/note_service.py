@@ -13,7 +13,6 @@ from app.util import TimeUtil
 
 
 class NoteService:
-
     @staticmethod
     def make_note_interactive():
         game = NoteInteractiveService.pick_game()

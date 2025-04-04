@@ -1,4 +1,5 @@
 import logging
+
 from app.api.opentaiko.api import GetTaikoPlaySession
 from app.api.opentaiko.consts import OPEN_TAIKO_APP_ID, OPEN_TAIKO_GAME_NAME
 from app.domain.game import Game
