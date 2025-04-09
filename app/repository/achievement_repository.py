@@ -1,8 +1,8 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.domain.achievement import Achievement
-from app.repository.database_service import DatabaseService
+from app.domain import Achievement
+from app.repository import DatabaseService
 
 
 class AchievementRepository():

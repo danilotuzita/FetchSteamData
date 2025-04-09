@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from app.domain.play_session import PlaySession
-from app.repository.database_service import DatabaseService
+from app.domain import PlaySession
+from app.repository import DatabaseService
 
 
 class PlaySessionRepository():

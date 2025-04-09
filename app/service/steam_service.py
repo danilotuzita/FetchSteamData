@@ -1,11 +1,11 @@
 import logging
 
 from app.api.steam.owned_games.responses import GetOwnedGamesResponseGame
-from app.domain.play_session import PlaySession
-from app.repository.game_repository import GameRepository
-from app.repository.play_session_repository import PlaySessionRepository
-from app.service.steam_achivements_service import SteamAchivementsService
-from app.service.steam_games_service import SteamGamesService
+from app.domain import PlaySession
+from app.repository import GameRepository
+from app.repository import PlaySessionRepository
+from app.service import SteamAchivementsService
+from app.service import SteamGamesService
 from app.util import TimeUtil
 
 

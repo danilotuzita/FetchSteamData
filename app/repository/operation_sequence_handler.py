@@ -3,8 +3,8 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.domain.operation_sequence import OperationCode, OperationSequence, OperationStatus
-from app.repository.database_service import DatabaseService
+from app.domain import OperationCode, OperationSequence, OperationStatus
+from app.repository import DatabaseService
 
 
 class OperationSequenceHandler():

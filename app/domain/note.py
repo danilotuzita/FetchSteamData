@@ -4,8 +4,8 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
 from app.domain import Base
-from app.domain.game import Game
-from app.domain.operation_sequence import OperationSequence
+from app.domain import Game
+from app.domain import OperationSequence
 
 
 class Note(Base):

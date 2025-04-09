@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
 from app.domain import Base
-from app.domain.operation_sequence import OperationSequence
+from app.domain import OperationSequence
 from app.util import TimeUtil
 
 

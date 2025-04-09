@@ -3,12 +3,12 @@ import logging
 from pick import Option, pick
 from thefuzz import process
 
-from app.domain.game import Game
-from app.domain.note import Note
-from app.domain.play_session import PlaySession
-from app.repository.game_repository import GameRepository
-from app.repository.note_repository import NoteRepository
-from app.repository.play_session_repository import PlaySessionRepository
+from app.domain import Game
+from app.domain import Note
+from app.domain import PlaySession
+from app.repository import GameRepository
+from app.repository import NoteRepository
+from app.repository import PlaySessionRepository
 from app.util import TimeUtil
 
 

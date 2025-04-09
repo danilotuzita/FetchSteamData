@@ -1,10 +1,10 @@
 import logging
 
-from app.api.steam.steam_service_api import SteamServiceApi
-from app.domain.achievement import Achievement
-from app.domain.game import Game
-from app.domain.play_session import PlaySession
-from app.repository.achievement_repository import AchievementRepository
+from app.api.steam import SteamServiceApi
+from app.domain import Achievement
+from app.domain import Game
+from app.domain import PlaySession
+from app.repository import AchievementRepository
 from app.util import TimeUtil
 
 

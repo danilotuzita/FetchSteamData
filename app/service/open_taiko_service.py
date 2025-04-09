@@ -2,12 +2,12 @@ import logging
 
 from app.api.opentaiko.api import GetTaikoPlaySession
 from app.api.opentaiko.consts import OPEN_TAIKO_APP_ID, OPEN_TAIKO_GAME_NAME
-from app.domain.game import Game
-from app.domain.play_session import PlaySession
-from app.repository.game_repository import GameRepository
-from app.repository.play_session_repository import PlaySessionRepository
-from app.service.note_service import NoteService
-from app.service.steam_games_service import SteamGamesService
+from app.domain import Game
+from app.domain import PlaySession
+from app.repository import GameRepository
+from app.repository import PlaySessionRepository
+from app.service import NoteService
+from app.service import SteamGamesService
 
 
 class OpenTaikoService:
