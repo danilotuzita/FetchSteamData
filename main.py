@@ -68,6 +68,7 @@ if __name__ == "__main__":
             logging.info(banner.read())
     except:
         logging.info("FetchSteamData")
+    # logging.getLogger().setLevel(logging.DEBUG)
     mode = OperationCode.FETCH
     match mode:
         case OperationCode.FETCH:
