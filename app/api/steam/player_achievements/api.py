@@ -12,7 +12,7 @@ class GetPlayerAchievements():
     get_player_achievements_url = "https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/"
 
     @staticmethod
-    def get_player_achievements(appid: int) -> GetPlayerAchievementsResponse:
+    def get_player_achievements(appid: int) -> GetPlayerAchievementsResponse | None:
         try:
             response = requests.get(
                 GetPlayerAchievements.get_player_achievements_url,

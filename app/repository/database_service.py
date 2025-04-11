@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from app.domain import Base
+from app.domain.base import Base
 from app.repository.consts import DATABASE_NAME
 
 

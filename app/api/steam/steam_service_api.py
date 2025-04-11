@@ -8,13 +8,13 @@ from app.api.steam.player_achievements.responses import GetPlayerAchievementsRes
 
 class SteamServiceApi:
     @staticmethod
-    def get_owned_games() -> GetOwnedGamesResponse:
+    def get_owned_games() -> GetOwnedGamesResponse | None:
         return GetOwnedGamesApi.get_owned_games()
 
     @staticmethod
-    def get_schema_for_game(appid: int) -> GetSchemaForGameResponse:
+    def get_schema_for_game(appid: int) -> GetSchemaForGameResponse | None:
         return GetSchemaForGameApi.get_schema_for_game(appid)
 
     @staticmethod
-    def get_player_achievements(appid: int) -> GetPlayerAchievementsResponse:
+    def get_player_achievements(appid: int) -> GetPlayerAchievementsResponse | None:
         return GetPlayerAchievements.get_player_achievements(appid)

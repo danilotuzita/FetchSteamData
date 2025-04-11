@@ -10,7 +10,7 @@ class GetSchemaForGameApi():
     get_schema_for_game_url = "https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/"
 
     @staticmethod
-    def get_schema_for_game(appid: int) -> GetSchemaForGameResponse:
+    def get_schema_for_game(appid: int) -> GetSchemaForGameResponse | None:
         try:
             response = requests.get(
                 GetSchemaForGameApi.get_schema_for_game_url,

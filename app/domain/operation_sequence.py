@@ -5,7 +5,7 @@ import sqlalchemy.event
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from app.domain import Base
+from app.domain.base import Base
 
 
 class OperationCode(Base):

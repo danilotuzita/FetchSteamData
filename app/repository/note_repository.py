@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.domain import Note
-from app.repository import DatabaseService
+from app.domain.note import Note
+from app.repository.database_service import DatabaseService
 
 
 class NoteRepository():

@@ -18,7 +18,7 @@ class GetOwnedGamesApi():
     )
 
     @staticmethod
-    def get_owned_games() -> GetOwnedGamesResponse:
+    def get_owned_games() -> GetOwnedGamesResponse | None:
         try:
             response = requests.get(GetOwnedGamesApi.get_owned_games_url, GetOwnedGamesApi.get_owned_games_param)
             response.raise_for_status()

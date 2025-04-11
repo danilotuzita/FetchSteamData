@@ -6,5 +6,6 @@
     },
     "autopep8.args": [
       "--ignore=E501"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "standard"
 }
