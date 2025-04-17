@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Play Sessions</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Game</th>
+            <th>Date</th>
+            <th>Duration</th>
+            <th>Play Count</th>
+            <th>Time Played Until Session</th>
+            <th>Total Time Played</th>
+            <th>Achievements Unlocked</th>
+            <th>Session Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for session in sessions %}
+        <tr>
+            <td> {{ session.game_name }} </td>
+            <td> {{ session.session_time }} </td>
+            <td> {{ session.time_played }} </td>
+            <td> {{ session.play_count }} </td>
+            <td> {{ session.time_played_until_session }} </td>
+            <td> {{ session.total_time_played }} </td>
+            <td> {{ session.achievements_unlocked }} </td>
+            <td> {{ session.session_notes }} </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

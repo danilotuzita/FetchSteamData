@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Welcome to FetchSteamData</h2>
+<form action="{{ url_for('execute_operation') }}" method="POST">
+    <label for="operation">Enter Operation:</label>
+    <input type="text" id="operation" name="operation" required>
+    <button type="submit">Execute</button>
+</form>
+{% endblock %}
