@@ -1,4 +1,3 @@
-
 from abc import abstractmethod
 
 from app.util import TimeUtil

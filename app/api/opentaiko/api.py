@@ -3,16 +3,21 @@ from datetime import datetime
 import logging
 import os
 import re
+from typing import Optional
+
+from flask import session
 
 from app.api.opentaiko.consts import OPEN_TAIKO_LOG_PATH
 
 
 @dataclass
 class TaikoSession:
-    start_time: datetime = None
-    end_time: datetime = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    minutes_played: Optional[int] = None
+    session_time: Optional[int] = None
     songs_played: list[str] = field(default_factory=list)
-    _last_time: datetime = None
+    _last_time: Optional[datetime] = None
 
 
 class GetTaikoPlaySession():
@@ -20,23 +25,29 @@ class GetTaikoPlaySession():
     matcher = re.compile(search_str)
 
     @staticmethod
-    def get_play_session() -> TaikoSession:
+    def get_play_session() -> TaikoSession | None:
         log_file_path = GetTaikoPlaySession.sanitize_log_path(OPEN_TAIKO_LOG_PATH)
         with open(log_file_path, mode='r', encoding='utf-8') as log_file:
             taiko_session = TaikoSession()
             for log in log_file:
                 taiko_session = GetTaikoPlaySession.process_log(log, taiko_session)
+
         if not taiko_session.end_time:
             logging.warning(f"Couldn't find Open Taiko end time! Maybe it crashed? Using the last time of log={log_file_path}")
             taiko_session.end_time = taiko_session._last_time
 
-        if not taiko_session.start_time:
+        if not taiko_session.start_time or not taiko_session.end_time:
             logging.error(f"Couldn't find Open Taiko start time! log={log_file_path}")
             return None
 
-        if taiko_session.start_time > taiko_session.end_time:
+        if taiko_session.start_time > taiko_session.end_time:  # type: ignore
             logging.error(f"Start Time is after End Time!!! What happened?? log={log_file_path}")
             return None
+
+        taiko_session.start_time = taiko_session.start_time.replace(microsecond=0)
+        taiko_session.end_time = taiko_session.end_time.replace(microsecond=0)
+        taiko_session.minutes_played = round((taiko_session.end_time - taiko_session.start_time).total_seconds() / 60)
+        taiko_session.session_time = round(taiko_session.end_time.timestamp())
         return taiko_session
 
     @staticmethod

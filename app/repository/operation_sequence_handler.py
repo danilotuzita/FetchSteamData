@@ -1,6 +1,6 @@
-
 import datetime
 import logging
+from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -9,11 +9,10 @@ from app.repository.database_service import DatabaseService
 
 
 class OperationSequenceHandler():
-
-    def __init__(self, operation_code=OperationCode.FETCH, message: str = None) -> None:
+    def __init__(self, operation_code=OperationCode.FETCH, message: Optional[str] = None) -> None:
         self.operation_code = operation_code
-        self.exception: Exception = None
-        self.message: str = message
+        self.exception: Optional[Exception] = None
+        self.message: Optional[str] = message
 
     def __enter__(self) -> "OperationSequenceHandler":
         with Session(DatabaseService.engine) as session:
@@ -38,10 +37,10 @@ class OperationSequenceHandler():
                 select(OperationSequence)
                 .where(OperationSequence.operation_id == DatabaseService.current_operation_id)
             )
-            operation.operation_end_time = datetime.datetime.now(datetime.UTC)
+            operation.operation_end_time = datetime.datetime.now(datetime.UTC)  # type: ignore
             if self.exception or exception_type:
-                operation.operation_status = OperationStatus.ERROR
-                operation.operation_message = str(self.exception or exception_value)
+                operation.operation_status = OperationStatus.ERROR  # type: ignore
+                operation.operation_message = str(self.exception or exception_value)  # type: ignore
             else:
                 operation.operation_status = OperationStatus.END
             session.commit()

@@ -1,4 +1,4 @@
-
+from typing import Sequence
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -21,9 +21,9 @@ class AchievementRepository():
             return session.query(func.count(Achievement.appid)).where(Achievement.appid == appid).scalar()
 
     @staticmethod
-    def set_achievement_unlocked(appid: int, name: str, unlocked_time: int = -1) -> Achievement:
+    def set_achievement_unlocked(appid: int, name: str, unlocked_time: int = -1) -> Achievement | None:
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
-            achievement: Achievement = session.scalar(
+            achievement = session.scalar(
                 select(Achievement)
                 .where(Achievement.appid == appid)
                 .where(func.upper(Achievement.name) == name.upper())
@@ -37,7 +37,7 @@ class AchievementRepository():
             return achievement
 
     @staticmethod
-    def get_session_achievements(appid: int, session_id: int) -> list[Achievement]:
+    def get_session_achievements(appid: int, session_id: int) -> Sequence[Achievement]:
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
             return session.scalars(
                 select(Achievement)
@@ -48,7 +48,7 @@ class AchievementRepository():
     @staticmethod
     def lock_achievement(appid: int, name: str):
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
-            achievement: Achievement = session.scalar(
+            achievement = session.scalar(
                 select(Achievement)
                 .where(Achievement.appid == appid)
                 .where(func.upper(Achievement.name) == name.upper())

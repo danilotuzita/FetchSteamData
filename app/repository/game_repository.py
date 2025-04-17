@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -7,7 +8,7 @@ from app.repository.database_service import DatabaseService
 
 class GameRepository():
     @staticmethod
-    def get_game(appid: int) -> Game:
+    def get_game(appid: int) -> Game | None:
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
             return session.scalar(
                 select(Game)
@@ -22,6 +23,6 @@ class GameRepository():
             return game
 
     @staticmethod
-    def get_all_games() -> list[Game]:
+    def get_all_games() -> Sequence[Game]:
         with Session(DatabaseService.engine) as session:
             return session.scalars(select(Game)).all()

@@ -5,17 +5,22 @@ from app.domain.achievement import Achievement
 from app.domain.game import Game
 from app.domain.play_session import PlaySession
 from app.repository.achievement_repository import AchievementRepository
+from app.repository.game_repository import GameRepository
 from app.util import TimeUtil
 
 
-class SteamAchivementsService:
+class SteamAchivementService:
     @staticmethod
-    def update_achivements(game: Game):
-        if SteamAchivementsService.make_achievements(game):
-            SteamAchivementsService.unlock_achivements(game)
+    def update_achivements(appid: int):
+        game = GameRepository.get_game(appid)
+        if not game:
+            logging.error(f"Game not found! appid={appid}")
+            return
+        if SteamAchivementService._make_achievements(game):
+            SteamAchivementService._unlock_achivements(game)
 
     @staticmethod
-    def unlock_achivements(game: Game):
+    def _unlock_achivements(game: Game):
         achievements = SteamServiceApi.get_player_achievements(game.appid)
         if not achievements or not achievements.playerstats or not achievements.playerstats.achievements:
             logging.error(f'Failed to get Unlocked date of achivements for Game name="{game.name}", appid={game.appid}. Skipping...')
@@ -24,11 +29,11 @@ class SteamAchivementsService:
             if achievement.achieved != 1:
                 continue
             updated_achievement = AchievementRepository.set_achievement_unlocked(game.appid, achievement.apiname, achievement.unlocktime)
-            if updated_achievement:
+            if updated_achievement and updated_achievement.time_unlocked:
                 logging.info(f'New Achievement Unlocked for Game! name="{updated_achievement.game_name}", appid={updated_achievement.appid}, achievement="{updated_achievement.display_name}", unlocked_at="{TimeUtil.unixtime_to_localtime_str(updated_achievement.time_unlocked)}".')
 
     @staticmethod
-    def make_achievements(game: Game) -> bool:
+    def _make_achievements(game: Game) -> bool:
         db_achievement_count = AchievementRepository.get_app_achivements_count(game.appid)
         game_schema = SteamServiceApi.get_schema_for_game(game.appid)
         if game_schema is None or game_schema.game is None or game_schema.game.availableGameStats is None:
@@ -47,7 +52,7 @@ class SteamAchivementsService:
     @staticmethod
     def lock_achivements_of_session(session: PlaySession):
         logging.warning(f'Locking achievements of {session}')
-        achievements: list[Achievement] = AchievementRepository.get_session_achievements(session.appid, session.session_id)
+        achievements = AchievementRepository.get_session_achievements(session.appid, session.session_id)
         for achievement in achievements:
             logging.warning(f'Locking {achievement}')
             AchievementRepository.lock_achievement(achievement.appid, achievement.name)

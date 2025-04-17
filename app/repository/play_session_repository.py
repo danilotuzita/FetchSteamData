@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -15,7 +16,7 @@ class PlaySessionRepository():
             return play_session
 
     @staticmethod
-    def get_last_play_session(appid: int) -> PlaySession:
+    def get_last_play_session(appid: int) -> PlaySession | None:
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
             return session.scalar(
                 select(PlaySession)
@@ -24,7 +25,7 @@ class PlaySessionRepository():
             )
 
     @staticmethod
-    def get_play_session(session_id: int, appid: int) -> PlaySession:
+    def get_play_session(session_id: int, appid: int) -> PlaySession | None:
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
             return session.scalar(
                 select(PlaySession)
@@ -39,7 +40,7 @@ class PlaySessionRepository():
             session.commit()
 
     @staticmethod
-    def get_play_sessions(appid: int, offset: int = 0, limit: int = 10) -> list[PlaySession]:
+    def get_play_sessions(appid: int, offset: int = 0, limit: int = 10) -> Sequence[PlaySession]:
         with Session(DatabaseService.engine, expire_on_commit=False) as session:
             return session.scalars(
                 select(PlaySession)

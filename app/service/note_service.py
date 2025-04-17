@@ -13,7 +13,6 @@ from app.util import TimeUtil
 
 
 class NoteService:
-
     @staticmethod
     def make_note_interactive():
         game = NoteInteractiveService.pick_game()
@@ -22,15 +21,15 @@ class NoteService:
         session = NoteInteractiveService.pick_session(game)
         if not session:
             return
-        NoteService.make_note(session)
+        NoteService.input_note(session)
 
     @staticmethod
     def make_note_to_last_play_session(appid: int):
         session = PlaySessionRepository.get_last_play_session(appid)
-        NoteService.make_note(session.session_id, session.appid)
+        NoteService.input_note(session)
 
     @staticmethod
-    def make_note(session: PlaySession):
+    def input_note(session: PlaySession | None):
         if not session:
             logging.error(f"Invalid session! {session}")
             return
@@ -38,18 +37,18 @@ class NoteService:
         if not game:
             logging.error(f"Invalid game! {game}")
             return
-        logging.info(f"""Adding note for: Game="{game.name}", Time={TimeUtil.unixtime_to_localtime_str(session.session_time)}, Minutes Played={TimeUtil.minutes_to_hours(session.minutes_played)}""")
+        logging.info(f'Adding note for: Game="{game.name}", Time={TimeUtil.unixtime_to_localtime_str(session.session_time)}, Minutes Played={TimeUtil.minutes_to_hours(session.minutes_played)}')
         content = input("Input your note: ")
         if (len(content.strip()) == 0):
             logging.info("Note empty! Not adding.")
             return
-        NoteService.put_note(session, content)
+        NoteService.put_note(session.appid, session.session_id, content)
 
     @staticmethod
-    def put_note(session: PlaySession, content: str):
+    def put_note(appid: int, session_id: int, content: str):
         note = Note(
-            session_id=session.session_id,
-            appid=session.appid,
+            session_id=session_id,
+            appid=appid,
             content=content
         )
         note = NoteRepository.put_note(note)
@@ -69,7 +68,7 @@ class NoteInteractiveService():
     PAGE_SIZE = 5
 
     @staticmethod
-    def pick_game() -> Game:
+    def pick_game() -> Game | None:
         logging.info("Activating interactive Note creation!")
         all_games = {game: game.name for game in GameRepository.get_all_games()}
         while True:
@@ -113,7 +112,7 @@ class NoteInteractiveService():
             return selection.value
 
     @staticmethod
-    def pick_session(game: Game) -> PlaySession:
+    def pick_session(game: Game) -> PlaySession | None:
         offset = 0
         found_at_least_once = False
         while True:
@@ -155,4 +154,4 @@ class NoteInteractiveService():
             options,
             title,
             indicator=NoteInteractiveService.INDICATOR
-        )[0]
+        )[0]  # type: ignore
