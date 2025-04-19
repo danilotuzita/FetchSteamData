@@ -3,8 +3,64 @@
 {% block content %}
 <h2>Welcome to FetchSteamData</h2>
 <form action="{{ url_for('execute_operation') }}" method="POST">
-    <label for="operation">Enter Operation:</label>
-    <input type="text" id="operation" name="operation" required>
-    <button type="submit">Execute</button>
+  <label for="operation">Enter Operation:</label>
+  <input type="text" id="operation" name="operation" required>
+  <button type="submit">Execute</button>
 </form>
+
+<script>
+  function showToast(i) {
+    const toast = document.createElement('div');
+    toast.textContent = `Button ${i} clicked!`;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor = 'black';
+    toast.style.color = 'white';
+    toast.style.padding = '10px';
+    toast.style.borderRadius = '5px';
+    toast.style.zIndex = '1000';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+</script>
+
+<table>
+  {% for date in sessions_by_date %}
+  <tr>
+    <td>
+      <h2>{{ date }}</h2>
+    </td>
+    <td>
+      <div class="card-holder">
+        {% for session in sessions_by_date[date] %}
+          <div class="card"
+              onclick="location.href='#';"
+              style="height: 400px; width: 350px; background-color: gainsboro;"
+              onclick="showToast( {{ 1 }} )"
+          >
+            <div class="cover-art-container">
+              <img src="{{ session.cover_art }}" alt="{{ session.game_name }}" style="width: 100%" />
+              <div class="title-overlay">
+                <span class="title">{{ session.game_name }}</span>
+              </div>
+            </div>
+
+            <div class="session-details">
+              <span class="time-interval">{{ session.session_time }}</span>
+              <p>
+                <b>Time Played this Session: </b>{{ session.time_played }}<br />
+                <b>Play Count: </b>{{ session.play_count }}<br />
+                <b>Play Time Until Session (Including): </b>{{ session.time_played_until_session }}<br />
+                <b>Total Time Played: </b>{{ session.total_time_played }}<br />
+                <!-- <b>Notes: </b>{{ session.session_notes if session.session_notes else "" }} <br /> -->
+              </p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock %}

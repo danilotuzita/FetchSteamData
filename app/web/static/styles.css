@@ -1,33 +1,108 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 header {
-    background-color: #333;
-    color: white;
-    padding: 1rem;
-    text-align: center;
+  background-color: #333;
+  color: white;
+  padding: 1rem;
+  text-align: center;
 }
 
 nav a {
-    color: white;
-    margin: 0 1rem;
-    text-decoration: none;
+  color: white;
+  margin: 0 1rem;
+  text-decoration: none;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
 }
 
 table, th, td {
-    border: 1px solid #ddd;
+  border: 1px solid #ddd;
 }
 
 th, td {
-    padding: 0.5rem;
-    text-align: left;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.card-holder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left;
+}
+
+.cover-art {
+  border-radius: 7px 7px 0 0;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: inherit;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+  border-radius: 7px;
+  border: none;
+  margin: 8px;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+
+.session-details {
+  border: black 1px solid;
+  padding: 0px 16px;
+}
+
+
+
+
+/* SPAN */
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  text-shadow: gray 0px 0px 5px;
+}
+
+.time-interval {
+  font-size: 10px;
+  color: darkslategray;
+}
+
+.cover-art-container {
+  position: relative;
+  border-radius: 7px 7px 0 0;
+  width: inherit;
+  overflow: hidden;
+}
+
+.title-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  transition: 0.3s ease-in-out;
+  background-color: rgba(129, 129, 129, 0.2);
+  text-align: center;
+  align-content: center;
+}
+
+.title-overlay:hover {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
 }

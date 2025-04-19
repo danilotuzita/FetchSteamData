@@ -1,8 +1,10 @@
 import logging
+from typing import Sequence
 
 from app.domain.play_session import PlaySession
 from app.repository.game_repository import GameRepository
 from app.repository.play_session_repository import PlaySessionRepository
+from app.repository.view.play_session_view import PlaySessionView, PlaySessionViewRepository
 from app.service.game_service import GameService
 from app.service.steam.steam_achivement_service import SteamAchivementService
 from app.util import TimeUtil
@@ -26,7 +28,8 @@ class PlaySessionService():
             PlaySession(appid=game.appid, minutes_played=minutes_played, session_time=current_last_played, play_count=play_count)
         )
         if play_session:
-            SteamAchivementService.update_achivements(appid)
+            if play_session.appid > 0:  # if Steam Game
+                SteamAchivementService.update_achivements(appid)
             GameService.update_game(
                 appid,
                 current_last_played,
@@ -57,3 +60,7 @@ class PlaySessionService():
         # Remove Session
         PlaySessionRepository.remove_play_session(session)
         logging.info(f'Session Undone')
+
+    @staticmethod
+    def get_latest_play_sessions(offset: int = 0, limit: int = 10) -> Sequence[PlaySessionView]:
+        return PlaySessionViewRepository.get_latest_play_sessions(offset, limit)
