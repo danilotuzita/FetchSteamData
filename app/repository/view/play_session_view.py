@@ -18,6 +18,7 @@ class PlaySessionView():
     total_time_played: str
     achievements_unlocked: str
     session_notes: str
+    cover_art: str = ""
 
 
 class PlaySessionViewRepository():
