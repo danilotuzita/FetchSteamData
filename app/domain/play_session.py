@@ -1,8 +1,9 @@
 from sqlalchemy import DateTime, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 
+from app.domain import game
 from app.domain.base import Base
 from app.domain.game import Game
 from app.domain.operation_sequence import OperationSequence
@@ -18,6 +19,8 @@ class PlaySession(Base):
     session_time: Mapped[int]
     play_count: Mapped[int] = mapped_column(default=1)
     fetch_time: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
+
+    game: Mapped[Game] = relationship("Game", back_populates="play_sessions")
 
     def __repr__(self) -> str:
         return self.to_string(

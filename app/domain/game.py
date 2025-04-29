@@ -2,7 +2,7 @@ from typing import Optional
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 
 from app.domain.base import Base
 from app.domain.operation_sequence import OperationSequence
@@ -20,6 +20,8 @@ class Game(Base):
     last_session_id: Mapped[Optional[int]] = mapped_column(ForeignKey(OperationSequence.operation_id))
     fetch_time: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now(), onupdate=func.now())
     first_fetched: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
+
+    play_sessions = relationship("PlaySession", back_populates="game")
 
     def __repr__(self):
         return self.to_string(
