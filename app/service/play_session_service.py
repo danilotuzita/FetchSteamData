@@ -15,7 +15,7 @@ class PlaySessionService():
         if not game:
             logging.error(f'Game not found for appid={appid}!!!')
             return None
-        if game.last_played >= current_last_played:
+        if game.last_played >= current_last_played or game.total_minutes_played >= current_playtime_forever:
             logging.debug(f'Skipping Play Session for Game name="{game.name}", appid={game.appid}. No changes detected.')
             return None
         minutes_played = current_playtime_forever - game.total_minutes_played

@@ -20,6 +20,7 @@ class Game(Base):
     last_session_id: Mapped[Optional[int]] = mapped_column(ForeignKey(OperationSequence.operation_id))
     fetch_time: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now(), onupdate=func.now())
     first_fetched: Mapped[DateTime] = mapped_column(DateTime(), server_default=func.now())
+    is_shared: Mapped[bool] = mapped_column(default=False)
 
     def __repr__(self):
         return self.to_string(
@@ -32,7 +33,8 @@ class Game(Base):
                 total_play_count={self.total_play_count!r},
                 last_session_id={self.last_session_id!r},
                 fetch_time='{self.fetch_time}',
-                first_fetched='{self.first_fetched}'
+                first_fetched='{self.first_fetched}',
+                owned={self.is_shared!r}
             )
             """
         )

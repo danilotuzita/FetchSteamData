@@ -14,3 +14,8 @@ def unixtime_to_localtime_str(unixtime: int) -> str:
 @staticmethod
 def unixtime_to_localtime(unixtime: int) -> dt:
     return dt.fromtimestamp(unixtime)
+
+
+@staticmethod
+def get_current_unixtime() -> int:
+    return int(dt.now().timestamp())

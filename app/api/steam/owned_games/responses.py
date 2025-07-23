@@ -1,18 +1,5 @@
-from abc import abstractmethod
-
+from app.api.steam import ResponseWrapper
 from app.util import TimeUtil
-
-
-class ResponseWrapper:
-    """
-    To init a ResponseWrapper SubClass implement the constructor as init
-    """
-
-    def __init__(self, response) -> None:
-        self.init(**response)
-
-    @abstractmethod
-    def init() -> None: return
 
 
 class GetOwnedGamesResponseGame:
