@@ -22,11 +22,25 @@ class GameService():
     @staticmethod
     def put_game(appid: int, name: str) -> Game | None:
         game = GameRepository.get_game(appid)
-        if game:
-            logging.debug(f'Game already exists! Game={game}.')
+        if game and game.is_shared == False:
+            logging.debug(f'Game already exists! Game={game}. Skipping...')
             return game
         logging.info(f'New Game found! name="{name}", appid={appid}.')
         return GameRepository.put_game(Game(
             appid=appid,
-            name=name
+            name=name,
+            is_shared=False
+        ))
+
+    @staticmethod
+    def put_shared_game(appid: int, name: str) -> Game | None:
+        game = GameRepository.get_game(appid)
+        if game:
+            logging.debug(f'Game already exists! Game={game}. Skipping...')
+            return game
+        logging.info(f'New Shared Game found! name="{name}", appid={appid}.')
+        return GameRepository.put_game(Game(
+            appid=appid,
+            name=name,
+            is_shared=True
         ))

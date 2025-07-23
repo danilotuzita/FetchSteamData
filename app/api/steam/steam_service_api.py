@@ -4,6 +4,8 @@ from app.api.steam.owned_games.responses import GetOwnedGamesResponse
 from app.api.steam.owned_games.api import GetOwnedGamesApi
 from app.api.steam.player_achievements.api import GetPlayerAchievements
 from app.api.steam.player_achievements.responses import GetPlayerAchievementsResponse
+from app.api.steam.recently_played_games.apy import GetRecentlyPlayedGamesApi
+from app.api.steam.recently_played_games.responses import GetRecentlyPlayedGamesResponse
 
 
 class SteamServiceApi:
@@ -18,3 +20,7 @@ class SteamServiceApi:
     @staticmethod
     def get_player_achievements(appid: int) -> GetPlayerAchievementsResponse | None:
         return GetPlayerAchievements.get_player_achievements(appid)
+
+    @staticmethod
+    def get_recently_played_games() -> GetRecentlyPlayedGamesResponse | None:
+        return GetRecentlyPlayedGamesApi.get_recently_played_games()
