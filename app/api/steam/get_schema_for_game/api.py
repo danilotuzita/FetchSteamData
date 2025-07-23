@@ -22,6 +22,9 @@ class GetSchemaForGameApi():
             response.raise_for_status()
             json = response.json()
             return GetSchemaForGameResponse(**json)
+        except TypeError:
+            logging.warning(f"Failed to parse Schema for Game, appid={appid}, response='{response.text}'")
+            return None
         except Exception:
             logging.exception(f"Error trying to fetch Schema for Game.")
             return None
